@@ -1,0 +1,12 @@
+{
+	"required": true,
+	"minVersion": "0.8",
+	"package": "com.andrewtoasterr.damagefunction.mixin",
+	"compatibilityLevel": "JAVA_16",
+	"mixins": [
+		"DamageSourceMixin"
+	],
+	"injectors": {
+		"defaultRequire": 1
+	}
+}

@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "id": "damagefunction",
+  "version": "1.0.0",
+
+  "name": "Damage Function",
+  "description": "Because datapack creators deserve one",
+  "authors": [
+    "AndrewToasterr"
+  ],
+  "contact": {
+    "sources": "https://github.com/AndrewToaster/DamageFunction"
+  },
+
+  "license": "CC0-1.0",
+  "icon": "assets/damagefunction/icon.png",
+
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "com.andrewtoasterr.damagefunction.DamageFunctionMod"
+    ]
+  },
+
+  "mixins": [
+    "damagefunction.mixins.json"
+  ],
+
+  "depends": {
+    "fabricloader": ">=0.11.3",
+    "fabric": "*",
+    "minecraft": "1.17.x",
+    "java": ">=16"
+  }
+}

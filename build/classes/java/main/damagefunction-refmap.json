@@ -1,0 +1,14 @@
+{
+  "mappings": {
+    "com/andrewtoasterr/damagefunction/mixin/DamageSourceMixin": {
+      "getAttacker": "Lnet/minecraft/class_1282;method_5529()Lnet/minecraft/class_1297;"
+    }
+  },
+  "data": {
+    "named:intermediary": {
+      "com/andrewtoasterr/damagefunction/mixin/DamageSourceMixin": {
+        "getAttacker": "Lnet/minecraft/class_1282;method_5529()Lnet/minecraft/class_1297;"
+      }
+    }
+  }
+}
