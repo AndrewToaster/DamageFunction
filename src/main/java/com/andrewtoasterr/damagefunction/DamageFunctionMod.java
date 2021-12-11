@@ -9,47 +9,82 @@ import net.minecraft.util.registry.Registry;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.function.BiFunction;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
+@SuppressWarnings("Convert2MethodRef")
 public class DamageFunctionMod implements ModInitializer {
-	public static Registry<DamageSource> DAMAGE_SOURCES;
+	public static final Registry<Factory> DAMAGESOURCE_FACTORIES = FabricRegistryBuilder.createSimple(Factory.class, makeId("damagesource_factory_registry")).buildAndRegister();
+
+	// Minecraft DamageSources
+	public static final Factory IN_FIRE = registerFactory("inFire", x -> x.setBypassesArmor().setFire());
+	public static final Factory LIGHTNING_BOLT = registerFactory("lightningBolt", x -> {});
+	public static final Factory ON_FIRE = registerFactory("onFire", x -> x.setBypassesArmor().setFire());
+	public static final Factory LAVA = registerFactory("lava", x -> x.setFire());
+	public static final Factory HOT_FLOOR = registerFactory("hotFloor", x -> x.setFire());
+	public static final Factory IN_WALL = registerFactory("inWall", x -> x.setBypassesArmor());
+	public static final Factory CRAMMING = registerFactory("cramming", x -> x.setBypassesArmor());
+	public static final Factory DROWN = registerFactory("drown", x -> x.setBypassesArmor());
+	public static final Factory STARVE = registerFactory("starve", x -> x.setBypassesArmor().setUnblockable());
+	public static final Factory CACTUS = registerFactory("cactus", x -> {});
+	public static final Factory FALL = registerFactory("fall", x -> x.setBypassesArmor().setFromFalling());
+	public static final Factory FLY_INTO_WALL = registerFactory("flyIntoWall", x -> x.setBypassesArmor());
+	public static final Factory OUT_OF_WORLD = registerFactory("outOfWorld", x -> x.setBypassesArmor().setOutOfWorld());
+	public static final Factory GENERIC = registerFactory("generic", x -> x.setBypassesArmor());
+	public static final Factory MAGIC = registerFactory("magic", x -> x.setBypassesArmor().setUsesMagic());
+	public static final Factory WITHER = registerFactory("wither", x -> x.setBypassesArmor());
+	public static final Factory ANVIL = registerFactory("anvil", x -> x.setFallingBlock());
+	public static final Factory FALLING_BLOCK = registerFactory("fallingBlock", x -> x.setFallingBlock());
+	public static final Factory DRAGON_BREATH = registerFactory("dragonBreath", x -> x.setBypassesArmor());
+	public static final Factory DRYOUT = registerFactory("dryout", x -> {});
+	public static final Factory SWEET_BERRY_BUSH = registerFactory("sweetBerryBush", 	x -> {});
+	public static final Factory FREEZE = registerFactory("freeze", x -> x.setBypassesArmor());
+	public static final Factory FALLING_STALACTITE = registerFactory("fallingStalactite", x -> x.setFallingBlock());
+	public static final Factory STALAGMITE = registerFactory("stalagmite", x -> x.setBypassesArmor().setFallingBlock());
+
+	// Custom DamageSources
+	public static final Factory NORMAL = registerFactory(makeId("normal"), () -> new PublicDamageSource("damagefunction_normal"));
 
 	@Override
 	public void onInitialize() {
-		DAMAGE_SOURCES = FabricRegistryBuilder.createSimple(DamageSource.class, makeId("damagesource_registry")).buildAndRegister();
-
-		// Register the default minecraft damage sources
-		Registry.register(DAMAGE_SOURCES, makeIdBase("anvil"), DamageSource.ANVIL);
-		Registry.register(DAMAGE_SOURCES, makeIdBase("cramming"), DamageSource.CRAMMING);
-		Registry.register(DAMAGE_SOURCES, makeIdBase("dragon_breath"), DamageSource.DRAGON_BREATH);
-		Registry.register(DAMAGE_SOURCES, makeIdBase("drown"), DamageSource.DROWN);
-		Registry.register(DAMAGE_SOURCES, makeIdBase("dryout"), DamageSource.DRYOUT);
-		Registry.register(DAMAGE_SOURCES, makeIdBase("falling_block"), DamageSource.FALLING_BLOCK);
-		Registry.register(DAMAGE_SOURCES, makeIdBase("falling_stalactite"), DamageSource.FALLING_STALACTITE);
-		Registry.register(DAMAGE_SOURCES, makeIdBase("fly_into_wall"), DamageSource.FLY_INTO_WALL);
-		Registry.register(DAMAGE_SOURCES, makeIdBase("freeze"), DamageSource.FREEZE);
-		Registry.register(DAMAGE_SOURCES, makeIdBase("generic"), DamageSource.GENERIC);
-		Registry.register(DAMAGE_SOURCES, makeIdBase("hot_floor"), DamageSource.HOT_FLOOR);
-		Registry.register(DAMAGE_SOURCES, makeIdBase("in_fire"), DamageSource.IN_FIRE);
-		Registry.register(DAMAGE_SOURCES, makeIdBase("in_wall"), DamageSource.IN_WALL);
-		Registry.register(DAMAGE_SOURCES, makeIdBase("lava"), DamageSource.LAVA);
-		Registry.register(DAMAGE_SOURCES, makeIdBase("lightning_bolt"), DamageSource.LIGHTNING_BOLT);
-		Registry.register(DAMAGE_SOURCES, makeIdBase("magic"), DamageSource.MAGIC);
-		Registry.register(DAMAGE_SOURCES, makeIdBase("on_fire"), DamageSource.ON_FIRE);
-		Registry.register(DAMAGE_SOURCES, makeIdBase("out_of_world"), DamageSource.OUT_OF_WORLD);
-		Registry.register(DAMAGE_SOURCES, makeIdBase("stalagmite"), DamageSource.STALAGMITE);
-		Registry.register(DAMAGE_SOURCES, makeIdBase("starve"), DamageSource.STARVE);
-		Registry.register(DAMAGE_SOURCES, makeIdBase("sweet_berry_bush"), DamageSource.SWEET_BERRY_BUSH);
-		Registry.register(DAMAGE_SOURCES, makeIdBase("wither"), DamageSource.WITHER);
-
 		// Register the actual command
 		CommandRegistrationCallback.EVENT.register(((dispatcher, dedicated) -> DamageCommand.register(dispatcher)));
 	}
 
-	public final Identifier makeId(String path) {
+	private static Factory registerFactory(String id, Consumer<PublicDamageSource> modifier) {
+		return registerFactory(makeIdBase(id.replaceAll("[A-Z]", "_$0").toLowerCase()), id, modifier);
+	}
+
+	private static Factory registerFactory(Identifier id, String name, Consumer<PublicDamageSource> modifier) {
+		return registerFactory(id, () -> {
+			PublicDamageSource src = new PublicDamageSource(name);
+			modifier.accept(src);
+			return src;
+		});
+	}
+
+	private static Factory registerFactory(String id, Supplier<DamageSource> factory) {
+		return registerFactory(makeIdBase(id), factory);
+	}
+
+	public static Factory registerFactory(Identifier id, Supplier<DamageSource> factory) {
+		return Registry.register(DAMAGESOURCE_FACTORIES, id, new Factory(factory));
+	}
+
+	public static DamageSource getDamageSource(Identifier id) {
+		Factory factory = DAMAGESOURCE_FACTORIES.get(id);
+		if (factory == null) {
+			return null;
+		}
+		return factory.get();
+	}
+
+	public static Identifier makeId(String path) {
 		return new Identifier("damagecommand", path);
 	}
 
-	private Identifier makeIdBase(String path) {
+	private static Identifier makeIdBase(String path) {
 		return new Identifier("minecraft", path);
 	}
 }

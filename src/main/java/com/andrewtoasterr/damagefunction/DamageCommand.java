@@ -32,7 +32,7 @@ public final class DamageCommand {
                                 .executes(ctx -> {
                                     Collection<? extends Entity> ents = EntityArgumentType.getEntities(ctx, "entity");
                                     float damageAmount = FloatArgumentType.getFloat(ctx, "amount");
-                                    return DamageEntities(ents, damageAmount, DamageSource.GENERIC, null);
+                                    return DamageEntities(ents, damageAmount, DamageFunctionMod.GENERIC.get(), null);
                                 })
                                 .then(argument("attacker", EntityArgumentType.entity())
                                         .executes(ctx -> {
@@ -40,7 +40,7 @@ public final class DamageCommand {
                                             float damageAmount = FloatArgumentType.getFloat(ctx, "amount");
                                             Entity attacker = EntityArgumentType.getEntity(ctx, "attacker");
 
-                                            return DamageEntities(ents, damageAmount, DamageSource.GENERIC, attacker);
+                                            return DamageEntities(ents, damageAmount, DamageFunctionMod.GENERIC.get(), attacker);
                                         })
                                 )
                                 .then(argument("damageSource", IdentifierArgumentType.identifier())
@@ -49,7 +49,7 @@ public final class DamageCommand {
                                             Collection<? extends Entity> ents = EntityArgumentType.getEntities(ctx, "entity");
                                             float damageAmount = FloatArgumentType.getFloat(ctx, "amount");
                                             Identifier sourceId = IdentifierArgumentType.getIdentifier(ctx, "damageSource");
-                                            DamageSource dmgSource = DamageFunctionMod.DAMAGE_SOURCES.get(sourceId);
+                                            DamageSource dmgSource = DamageFunctionMod.getDamageSource(sourceId);
 
                                             if (dmgSource == null) {
                                                 throw new InvalidIdentifierException("Specified damageSource was not found");
@@ -62,7 +62,7 @@ public final class DamageCommand {
                                                     Collection<? extends Entity> ents = EntityArgumentType.getEntities(ctx, "entity");
                                                     float damageAmount = FloatArgumentType.getFloat(ctx, "amount");
                                                     Identifier sourceId = IdentifierArgumentType.getIdentifier(ctx, "damageSource");
-                                                    DamageSource dmgSource = DamageFunctionMod.DAMAGE_SOURCES.get(sourceId);
+                                                    DamageSource dmgSource = DamageFunctionMod.getDamageSource(sourceId);
 
                                                     if (dmgSource == null) {
                                                         throw new InvalidIdentifierException("Specified damageSource was not found");
