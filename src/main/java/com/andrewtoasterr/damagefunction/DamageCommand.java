@@ -11,15 +11,10 @@ import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.InvalidIdentifierException;
-// getString(ctx, "string")
 import java.util.Collection;
 
-// word()
-// literal("foo")
 import static net.minecraft.server.command.CommandManager.literal;
-// argument("bar", word())
 import static net.minecraft.server.command.CommandManager.argument;
-// Import everything
 
 
 public final class DamageCommand {

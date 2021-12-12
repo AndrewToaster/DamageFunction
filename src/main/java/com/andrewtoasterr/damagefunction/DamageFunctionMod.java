@@ -7,13 +7,9 @@ import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
 
-import java.util.HashSet;
-import java.util.Set;
-import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-@SuppressWarnings("Convert2MethodRef")
 public class DamageFunctionMod implements ModInitializer {
 	public static final Registry<Factory> DAMAGESOURCE_FACTORIES = FabricRegistryBuilder.createSimple(Factory.class, makeId("damagesource_factory_registry")).buildAndRegister();
 
@@ -21,26 +17,26 @@ public class DamageFunctionMod implements ModInitializer {
 	public static final Factory IN_FIRE = registerFactory("inFire", x -> x.setBypassesArmor().setFire());
 	public static final Factory LIGHTNING_BOLT = registerFactory("lightningBolt", x -> {});
 	public static final Factory ON_FIRE = registerFactory("onFire", x -> x.setBypassesArmor().setFire());
-	public static final Factory LAVA = registerFactory("lava", x -> x.setFire());
-	public static final Factory HOT_FLOOR = registerFactory("hotFloor", x -> x.setFire());
-	public static final Factory IN_WALL = registerFactory("inWall", x -> x.setBypassesArmor());
-	public static final Factory CRAMMING = registerFactory("cramming", x -> x.setBypassesArmor());
-	public static final Factory DROWN = registerFactory("drown", x -> x.setBypassesArmor());
+	public static final Factory LAVA = registerFactory("lava", PublicDamageSource::setFire);
+	public static final Factory HOT_FLOOR = registerFactory("hotFloor", PublicDamageSource::setFire);
+	public static final Factory IN_WALL = registerFactory("inWall", PublicDamageSource::setBypassesArmor);
+	public static final Factory CRAMMING = registerFactory("cramming", PublicDamageSource::setBypassesArmor);
+	public static final Factory DROWN = registerFactory("drown", PublicDamageSource::setBypassesArmor);
 	public static final Factory STARVE = registerFactory("starve", x -> x.setBypassesArmor().setUnblockable());
 	public static final Factory CACTUS = registerFactory("cactus", x -> {});
 	public static final Factory FALL = registerFactory("fall", x -> x.setBypassesArmor().setFromFalling());
-	public static final Factory FLY_INTO_WALL = registerFactory("flyIntoWall", x -> x.setBypassesArmor());
+	public static final Factory FLY_INTO_WALL = registerFactory("flyIntoWall", PublicDamageSource::setBypassesArmor);
 	public static final Factory OUT_OF_WORLD = registerFactory("outOfWorld", x -> x.setBypassesArmor().setOutOfWorld());
-	public static final Factory GENERIC = registerFactory("generic", x -> x.setBypassesArmor());
+	public static final Factory GENERIC = registerFactory("generic", PublicDamageSource::setBypassesArmor);
 	public static final Factory MAGIC = registerFactory("magic", x -> x.setBypassesArmor().setUsesMagic());
-	public static final Factory WITHER = registerFactory("wither", x -> x.setBypassesArmor());
-	public static final Factory ANVIL = registerFactory("anvil", x -> x.setFallingBlock());
-	public static final Factory FALLING_BLOCK = registerFactory("fallingBlock", x -> x.setFallingBlock());
-	public static final Factory DRAGON_BREATH = registerFactory("dragonBreath", x -> x.setBypassesArmor());
+	public static final Factory WITHER = registerFactory("wither", PublicDamageSource::setBypassesArmor);
+	public static final Factory ANVIL = registerFactory("anvil", PublicDamageSource::setFallingBlock);
+	public static final Factory FALLING_BLOCK = registerFactory("fallingBlock", PublicDamageSource::setFallingBlock);
+	public static final Factory DRAGON_BREATH = registerFactory("dragonBreath", PublicDamageSource::setBypassesArmor);
 	public static final Factory DRYOUT = registerFactory("dryout", x -> {});
 	public static final Factory SWEET_BERRY_BUSH = registerFactory("sweetBerryBush", 	x -> {});
-	public static final Factory FREEZE = registerFactory("freeze", x -> x.setBypassesArmor());
-	public static final Factory FALLING_STALACTITE = registerFactory("fallingStalactite", x -> x.setFallingBlock());
+	public static final Factory FREEZE = registerFactory("freeze", PublicDamageSource::setBypassesArmor);
+	public static final Factory FALLING_STALACTITE = registerFactory("fallingStalactite", PublicDamageSource::setFallingBlock);
 	public static final Factory STALAGMITE = registerFactory("stalagmite", x -> x.setBypassesArmor().setFallingBlock());
 
 	// Custom DamageSources
@@ -62,10 +58,6 @@ public class DamageFunctionMod implements ModInitializer {
 			modifier.accept(src);
 			return src;
 		});
-	}
-
-	private static Factory registerFactory(String id, Supplier<DamageSource> factory) {
-		return registerFactory(makeIdBase(id), factory);
 	}
 
 	public static Factory registerFactory(Identifier id, Supplier<DamageSource> factory) {
